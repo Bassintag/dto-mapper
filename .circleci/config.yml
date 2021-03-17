@@ -5,17 +5,15 @@ orbs:
 
 jobs:
   publish:
-    working_directory: ~/workspace
     docker:
       - image: circleci/node:14.16.0
     steps:
-      - attach_workspace:
-          at: ~/workspace
+      - checkout:
       - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/workspace/.npmrc
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
       - run:
-          - command ls -l
+          command: command ls -l
       - run:
           name: Install
           command: npm install
@@ -34,7 +32,5 @@ workflows:
           requires:
             - node/test
           filters:
-            tags:
-              only: /^v.*/
             branches:
               only: master
