@@ -15,6 +15,14 @@ jobs:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/workspace/.npmrc
       - run:
+          - command ls -l
+      - run:
+          name: Install
+          command: npm install
+      - run:
+          name: Build
+          command: npm run build
+      - run:
           name: Publish
           command: npm publish
 
@@ -23,6 +31,8 @@ workflows:
     jobs:
       - node/test
       - publish:
+          requires:
+            - node/test
           filters:
             tags:
               only: /^v.*/
