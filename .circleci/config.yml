@@ -13,8 +13,6 @@ jobs:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
       - run:
-          command: command ls -l
-      - run:
           name: Install
           command: npm install
       - run:
