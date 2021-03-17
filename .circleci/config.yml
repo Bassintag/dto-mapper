@@ -1,7 +1,29 @@
 version: 2.1
+
 orbs:
   node: circleci/node@3.0.0
+
+job:
+  publish:
+    working_directory: ~/workspace
+    docker:
+      - image: circleci/node:14.16.0
+    steps:
+      - attach_workspace:
+          at: ~/workspace
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/
+      - run:
+          name: Publish
+          command: npm publish
 workflows:
-  node-tests:
+  test-and-publish:
     jobs:
       - node/test
+      - publish:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              only: master
