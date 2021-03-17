@@ -30,5 +30,7 @@ workflows:
           requires:
             - node/test
           filters:
+            branch:
+              ignore: /.*/
             tags:
-              only: /^\d\.\d\.\d$/
+              only: /^\d+\.\d+\.\d+$/

@@ -9,7 +9,8 @@
     "test": "mocha -r ts-node/register 'test/**/*.ts'"
   },
   "files": [
-    "dist"
+    "dist",
+    "./readme.md"
   ],
   "keywords": [],
   "author": "",
