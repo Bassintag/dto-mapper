@@ -1,7 +1,7 @@
 {
   "name": "dto-mapper",
   "version": "0.0.4",
-  "description": "",
+  "description": "Simple to use library to map DTO using typescript decorators",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -13,8 +13,8 @@
     "./readme.md"
   ],
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "bassintag",
+  "license": "MIT",
   "dependencies": {},
   "peerDependencies": {
     "reflect-metadata": "^0.1.13"
