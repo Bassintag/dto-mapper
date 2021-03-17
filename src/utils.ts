@@ -11,7 +11,7 @@ import {IScope} from './scope';
 import {INestedMetadata} from './annotation';
 
 export interface Class<T> extends Function {
-    new(...args: any[]): T;
+    new(): T;
 }
 
 
@@ -48,7 +48,10 @@ export function buildMapper<EntityT, DtoT>(dtoClass: Class<DtoT>, ignoreNested: 
             transformer,
         };
     });
-    return new Mapper<DtoT, EntityT>({fields});
+    return new Mapper<DtoT, EntityT>({
+        fields,
+        dtoConstructor: dtoClass,
+    });
 }
 
 export function combineTransformFunction<T = any, U = any>(functions: ITransformFunction<any, any>[]): ITransformFunction<T, U> {
