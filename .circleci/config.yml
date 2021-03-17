@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   node: circleci/node@3.0.0
 
-job:
+jobs:
   publish:
     working_directory: ~/workspace
     docker:
@@ -17,6 +17,7 @@ job:
       - run:
           name: Publish
           command: npm publish
+
 workflows:
   test-and-publish:
     jobs:
