@@ -12,6 +12,7 @@ describe('basic integration tests', () => {
         a: string
         c: string;
         nested: IEntityB;
+        nestedMany: IEntityB[];
     }
 
     @dto()
@@ -35,6 +36,10 @@ describe('basic integration tests', () => {
         @include()
         @nested(() => DtoB)
         nested: DtoB;
+
+        @include()
+        @nested(() => DtoB, true)
+        nestedMany: DtoB[];
     }
 
     let mapper: IMapper<DtoA, IEntityA>;
@@ -51,6 +56,10 @@ describe('basic integration tests', () => {
                 c: 'nested-c',
                 secret: 'secret',
             },
+            nestedMany: [{
+                c: 'nested-many-c',
+                secret: 'secret',
+            }]
         };
         const serialized = mapper.serialize(entity);
         expect(serialized.a).to.be.undefined;
@@ -58,34 +67,35 @@ describe('basic integration tests', () => {
         expect(serialized.nested).to.be.an('object');
         expect(serialized.nested.c).to.be.equal(entity.nested.c);
         expect((serialized.nested as any).secret).to.be.undefined;
+        expect(serialized.nestedMany).to.be.an('array').of.length(1);
+        expect(serialized.nestedMany[0].c).to.be.equal(entity.nestedMany[0].c);
+        expect((serialized.nestedMany[0] as any).secret).to.be.undefined;
         const serializedAdmin = mapper.serialize(entity, 'admin');
         expect(serializedAdmin.a).to.be.equal(entity.a);
-        expect(serializedAdmin.b).to.be.equal(entity.c);
-        expect(serializedAdmin.nested).to.be.an('object');
-        expect(serializedAdmin.nested.c).to.be.equal(entity.nested.c);
-        expect((serializedAdmin.nested as any).secret).to.be.undefined;
     });
 
     it('should deserialize properly', () => {
-        const entity: DtoA = {
+        const dto: DtoA = {
             a: 'a',
             b: 'c',
             nested: {
                 c: 'nested-c',
             },
+            nestedMany: [{
+                c: 'nested-many-c',
+            }],
         };
-        const serialized = mapper.deserialize(entity);
-        expect(serialized.a).to.be.undefined;
-        expect(serialized.c).to.be.equal(entity.b);
-        expect(serialized.nested).to.be.an('object');
-        expect(serialized.nested.c).to.be.equal(entity.nested.c);
-        expect((serialized.nested as any).secret).to.be.undefined;
-        const serializedAdmin = mapper.deserialize(entity, 'admin');
-        expect(serializedAdmin.a).to.be.equal(entity.a);
-        expect(serializedAdmin.c).to.be.equal(entity.b);
-        expect(serializedAdmin.nested).to.be.an('object');
-        expect(serializedAdmin.nested.c).to.be.equal(entity.nested.c);
-        expect((serializedAdmin.nested as any).secret).to.be.undefined;
+        const deserialized = mapper.deserialize(dto);
+        expect(deserialized.a).to.be.undefined;
+        expect(deserialized.c).to.be.equal(dto.b);
+        expect(deserialized.nested).to.be.an('object');
+        expect(deserialized.nested.c).to.be.equal(dto.nested.c);
+        expect((deserialized.nested as any).secret).to.be.undefined;
+        expect(deserialized.nestedMany).to.be.an('array').of.length(1);
+        expect(deserialized.nestedMany[0].c).to.be.equal(dto.nestedMany[0].c);
+        expect((deserialized.nestedMany[0] as any).secret).to.be.undefined;
+        const serializedAdmin = mapper.deserialize(dto, 'admin');
+        expect(serializedAdmin.a).to.be.equal(dto.a);
     });
 });
 

@@ -25,7 +25,7 @@ export function buildMapper<EntityT, DtoT>(dtoClass: Class<DtoT>, ignoreNested: 
         let to: keyof EntityT = Reflect.getMetadata(MAP_TO_METADATA, dtoClass, k) || k;
         const transformers = Reflect.getMetadata(TRANSFORM_METADATA, dtoClass, k);
         const nested: INestedMetadata = Reflect.getMetadata(NESTED_METADATA, dtoClass, k);
-        let transformer: ITransformer<DtoT, EntityT> | undefined;
+        let transformer: ITransformer<any, any> | undefined;
         if (transformers != null && nested != null) {
             throw new Error('A property cannot have @nested and @transform')
         }
@@ -34,10 +34,17 @@ export function buildMapper<EntityT, DtoT>(dtoClass: Class<DtoT>, ignoreNested: 
         } else if (nested && !ignoreNested) {
             const clazz = nested.accessor();
             const builtNested = buildMapper<any, any>(clazz, true);
-            transformer = {
-                toDto: input => input == null ? null : builtNested.serialize(input),
-                fromDto: input => input == null ? null : builtNested.deserialize(input),
-            };
+            if (nested.many) {
+                transformer = {
+                    toDto: input => input == null ? null : input.map((i) => builtNested.serialize(i)),
+                    fromDto: input => input == null ? null : input.map((i) => builtNested.deserialize(i)),
+                };
+            } else {
+                transformer = {
+                    toDto: input => input == null ? null : builtNested.serialize(input),
+                    fromDto: input => input == null ? null : builtNested.deserialize(input),
+                };
+            }
         } else {
             transformer = undefined;
         }
