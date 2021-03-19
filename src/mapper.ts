@@ -1,10 +1,10 @@
 import {IScope} from './scope';
 import {Class} from './utils';
 
-export interface IResolvedFieldValue<T, ClassT> {
+export interface IResolvedFieldValue<ClassT> {
     key: keyof ClassT;
 
-    value: T;
+    value: ClassT[keyof ClassT];
 }
 
 export interface IMapper<DtoT, EntityT> {
@@ -13,9 +13,17 @@ export interface IMapper<DtoT, EntityT> {
 
     serialize(input: EntityT, scope?: IScope): DtoT;
 
-    deserializeField<KeyT extends keyof DtoT>(key: KeyT, input: DtoT[KeyT], scope?: IScope): IResolvedFieldValue<DtoT[KeyT], EntityT>;
+    deserializeAndMapField<KeyT extends keyof DtoT>(key: KeyT, input: DtoT[KeyT], scope?: IScope): IResolvedFieldValue<EntityT> | undefined;
 
-    serializeField<KeyT extends keyof EntityT>(key: KeyT, input: EntityT[KeyT], scope?: IScope): IResolvedFieldValue<EntityT[KeyT], DtoT>;
+    serializeAndUnmapField<KeyT extends keyof EntityT>(key: KeyT, input: EntityT[KeyT], scope?: IScope): IResolvedFieldValue<DtoT> | undefined;
+
+    deserializeField<KeyT extends keyof DtoT>(key: KeyT, input: DtoT[KeyT], scope?: IScope): EntityT[keyof EntityT] | undefined;
+
+    serializeField<KeyT extends keyof EntityT>(key: KeyT, input: EntityT[KeyT], scope?: IScope): DtoT[keyof DtoT] | undefined;
+
+    mapKey<KeyT extends keyof DtoT>(key: KeyT, scope?: IScope): keyof EntityT | undefined;
+
+    unmapKey<KeyT extends keyof EntityT>(key: KeyT, scope?: IScope): keyof DtoT | undefined;
 }
 
 export type ITransformFunction<InT, OutT> = (input: InT) => OutT;
@@ -50,6 +58,12 @@ export interface IMapperConfig<DtoT, EntityT> {
 type IFieldMap<DtoT, EntityT> = { readonly [KeyT in keyof DtoT]?: IMapperField<KeyT, keyof EntityT, DtoT, EntityT> };
 type IReverseFieldMap<DtoT, EntityT> = { readonly [KeyT in keyof EntityT]?: IMapperField<keyof DtoT, KeyT, DtoT, EntityT> };
 
+
+const hasScope = (field: IMapperField<any, any>, scope: IScope | null): boolean => {
+    return field.scopes == null || (scope != null && field.scopes.includes(scope));
+};
+
+
 export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
 
     readonly fieldMap: IFieldMap<DtoT, EntityT>;
@@ -76,7 +90,7 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
             inflating = {};
         }
         for (const field of this.config.fields) {
-            if (field.scopes == null || field.scopes.includes(scope)) {
+            if (hasScope(field, scope)) {
                 const value = input[field.from];
                 if (field.transformer != null) {
                     inflating[field.to] = field.transformer.fromDto(value);
@@ -96,7 +110,7 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
             inflating = {};
         }
         for (const field of this.config.fields) {
-            if (field.scopes == null || field.scopes.includes(scope)) {
+            if (hasScope(field, scope)) {
                 const value = input[field.to];
                 if (field.transformer != null) {
                     inflating[field.from] = field.transformer.toDto(value);
@@ -108,8 +122,51 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
         return inflating as DtoT;
     }
 
-    deserializeField<KeyT extends keyof DtoT>(key: KeyT, input: DtoT[KeyT], scope?: IScope): IResolvedFieldValue<DtoT[KeyT], EntityT> {
+    deserializeField<KeyT extends keyof DtoT>(key: KeyT, input: DtoT[KeyT], scope?: IScope): EntityT[keyof EntityT] | undefined {
         const field = this.fieldMap[key];
+        if (field == null || !hasScope(field, scope)) {
+            return undefined;
+        }
+        if (field.transformer != null) {
+            return field.transformer.fromDto(input);
+        } else {
+            return input as any;
+        }
+    }
+
+    serializeField<T, KeyT extends keyof EntityT>(key: KeyT, input: EntityT[KeyT], scope?: IScope): DtoT[keyof DtoT] | undefined {
+        const field = this.reverseFieldMap[key];
+        if (field == null || !hasScope(field, scope)) {
+            return undefined;
+        }
+        if (field.transformer != null) {
+            return field.transformer.toDto(input);
+        } else {
+            return input as any;
+        }
+    }
+
+    unmapKey<KeyT extends keyof EntityT>(key: KeyT, scope?: IScope): keyof DtoT | undefined {
+        const field = this.reverseFieldMap[key];
+        if (field == null || !hasScope(field, scope)) {
+            return null;
+        }
+        return field.from;
+    }
+
+    mapKey<KeyT extends keyof DtoT>(key: KeyT, scope?: IScope): keyof EntityT | undefined {
+        const field = this.fieldMap[key];
+        if (field == null || !hasScope(field, scope)) {
+            return null;
+        }
+        return field.to;
+    }
+
+    deserializeAndMapField<KeyT extends keyof DtoT>(key: KeyT, input: DtoT[KeyT], scope?: IScope): IResolvedFieldValue<EntityT> | undefined {
+        const field = this.fieldMap[key];
+        if (field == null || !hasScope(field, scope)) {
+            return undefined;
+        }
         let value: any;
         if (field.transformer != null) {
             value = field.transformer.fromDto(input);
@@ -122,8 +179,11 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
         };
     }
 
-    serializeField<T, KeyT extends keyof EntityT>(key: KeyT, input: EntityT[KeyT], scope?: IScope): IResolvedFieldValue<EntityT[KeyT], DtoT> {
+    serializeAndUnmapField<KeyT extends keyof EntityT>(key: KeyT, input: EntityT[KeyT], scope?: IScope): IResolvedFieldValue<DtoT> | undefined {
         const field = this.reverseFieldMap[key];
+        if (field == null || !hasScope(field, scope)) {
+            return undefined;
+        }
         let value: any;
         if (field.transformer != null) {
             value = field.transformer.toDto(input);

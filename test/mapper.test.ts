@@ -39,33 +39,37 @@ describe('Mapper class', () => {
         }],
     });
 
-    it('should allow basic serialization', function () {
+    it('should allow basic serialization', function() {
         const aVal = 10;
         const dto = mapper1.serialize({a: aVal});
         expect(dto).property('a').to.equal(aVal);
     });
 
-    it('should allow basic single property serialization', function () {
+    it('should allow basic single property serialization', function() {
         const aVal = 10;
         const serialized = mapper1.serializeField('a', aVal);
-        expect(serialized.key).equal('a');
-        expect(serialized.value).equal(aVal);
+        expect(serialized).equal(10);
+        const serializedAndUnmapped = mapper1.serializeAndUnmapField('a', aVal);
+        expect(serializedAndUnmapped).property('key').to.equal('a');
+        expect(serializedAndUnmapped).property('value').to.equal(10);
     });
 
-    it('should allow basic deserialization', function () {
+    it('should allow basic deserialization', function() {
         const aVal = 10;
         const entity = mapper1.deserialize({a: aVal});
         expect(entity).property('a').to.equal(aVal);
     });
 
-    it('should allow basic single property deserialization', function () {
+    it('should allow basic single property deserialization', function() {
         const aVal = 10;
         const deserialized = mapper1.deserializeField('a', aVal);
-        expect(deserialized.key).equal('a');
-        expect(deserialized.value).equal(aVal);
+        expect(deserialized).equal(10);
+        const deserializedAndMapped = mapper1.deserializeAndMapField('a', aVal);
+        expect(deserializedAndMapped).property('key').to.equal('a');
+        expect(deserializedAndMapped).property('value').to.equal(10);
     });
 
-    it('should allow renaming properties', function () {
+    it('should allow renaming properties', function() {
         const val = 10;
         const dto = mapper2.serialize({b: val});
         expect(dto).property('a').to.equal(val);
@@ -73,17 +77,21 @@ describe('Mapper class', () => {
         expect(entity).property('b').to.equal(val);
     });
 
-    it('should allow renaming in single property (de)serialization', function () {
+    it('should allow renaming in single property (de)serialization', function() {
         const val = 10;
         const serialized = mapper2.serializeField('b', val);
-        expect(serialized.key).equal('a');
-        expect(serialized.value).equal(val);
+        expect(serialized).equal(10);
+        const serializedAndUnmapped = mapper2.serializeAndUnmapField('b', val);
+        expect(serializedAndUnmapped).property('key').to.equal('a');
+        expect(serializedAndUnmapped).property('value').to.equal(10);
         const deserialized = mapper2.deserializeField('a', val);
-        expect(deserialized.key).equal('b');
-        expect(deserialized.value).equal(val);
+        expect(deserialized).equal(10);
+        const deserializedAndMapped = mapper2.deserializeAndMapField('a', val);
+        expect(deserializedAndMapped).property('key').to.equal('b');
+        expect(deserializedAndMapped).property('value').to.equal(10);
     });
 
-    it('should respect scopes', function () {
+    it('should respect scopes', function() {
         const val1 = 10;
         const val2 = 'secret';
         const dto = mapper3.serialize({b: val1, d: val2});
@@ -101,11 +109,19 @@ describe('Mapper class', () => {
     });
 
 
-    it('should allow transforming the data', function () {
+    it('should allow transforming the data', function() {
         const val = 10;
         const dto = mapper4.serialize({b: val});
         expect(dto.a).to.equal(5);
         const entity = mapper4.deserialize({a: val});
         expect(entity.b).to.equal(20);
     });
-})
+
+    it('should allow resolving one key mapping', function() {
+        expect(mapper2.unmapKey('b')).to.equal('a');
+    });
+
+    it('should allow resolving one reverse key mapping', function() {
+        expect(mapper2.mapKey('a')).to.equal('b');
+    });
+});
