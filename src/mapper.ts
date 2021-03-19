@@ -93,7 +93,7 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
             if (hasScope(field, scope)) {
                 const value = input[field.from];
                 if (field.transformer != null) {
-                    inflating[field.to] = field.transformer.fromDto(value);
+                    inflating[field.to] = field.transformer.fromDto(value, scope);
                 } else {
                     inflating[field.to] = value as any;
                 }
@@ -113,7 +113,7 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
             if (hasScope(field, scope)) {
                 const value = input[field.to];
                 if (field.transformer != null) {
-                    inflating[field.from] = field.transformer.toDto(value);
+                    inflating[field.from] = field.transformer.toDto(value, scope);
                 } else {
                     inflating[field.from] = value as any;
                 }
@@ -128,7 +128,7 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
             return undefined;
         }
         if (field.transformer != null) {
-            return field.transformer.fromDto(input);
+            return field.transformer.fromDto(input, scope);
         } else {
             return input as any;
         }
@@ -140,7 +140,7 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
             return undefined;
         }
         if (field.transformer != null) {
-            return field.transformer.toDto(input);
+            return field.transformer.toDto(input, scope);
         } else {
             return input as any;
         }
@@ -169,7 +169,7 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
         }
         let value: any;
         if (field.transformer != null) {
-            value = field.transformer.fromDto(input);
+            value = field.transformer.fromDto(input, scope);
         } else {
             value = input;
         }
@@ -186,7 +186,7 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
         }
         let value: any;
         if (field.transformer != null) {
-            value = field.transformer.toDto(input);
+            value = field.transformer.toDto(input, scope);
         } else {
             value = input;
         }
