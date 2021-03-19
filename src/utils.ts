@@ -27,7 +27,7 @@ export function buildMapper<EntityT, DtoT>(dtoClass: Class<DtoT>, ignoreNested: 
         const nested: INestedMetadata = Reflect.getMetadata(NESTED_METADATA, dtoClass, k);
         let transformer: ITransformer<any, any> | undefined;
         if (transformers != null && nested != null) {
-            throw new Error('A property cannot have @nested and @transform')
+            throw new Error('A property cannot have @nested and @transform');
         }
         if (transformers) {
             transformer = combineTransformers<DtoT, EntityT>(transformers);
@@ -36,13 +36,13 @@ export function buildMapper<EntityT, DtoT>(dtoClass: Class<DtoT>, ignoreNested: 
             const builtNested = buildMapper<any, any>(clazz, true);
             if (nested.many) {
                 transformer = {
-                    toDto: input => input == null ? null : input.map((i) => builtNested.serialize(i)),
-                    fromDto: input => input == null ? null : input.map((i) => builtNested.deserialize(i)),
+                    toDto: (input, s) => input == null ? null : input.map((i) => builtNested.serialize(i, s)),
+                    fromDto: (input, s) => input == null ? null : input.map((i) => builtNested.deserialize(i, s)),
                 };
             } else {
                 transformer = {
-                    toDto: input => input == null ? null : builtNested.serialize(input),
-                    fromDto: input => input == null ? null : builtNested.deserialize(input),
+                    toDto: (input, s) => input == null ? null : builtNested.serialize(input, s),
+                    fromDto: (input, s) => input == null ? null : builtNested.deserialize(input, s),
                 };
             }
         } else {
@@ -74,12 +74,12 @@ export function combineTransformFunction<T = any, U = any>(functions: ITransform
             value = func(value);
         }
         return value;
-    }
+    };
 }
 
 export function combineTransformers<T = any, U = any>(transformers: ITransformer<any, any>[]): ITransformer<T, U> {
     return {
         toDto: combineTransformFunction<U, T>(transformers.map((t) => t.toDto)),
         fromDto: combineTransformFunction<T, U>(transformers.map((t) => t.fromDto)),
-    }
+    };
 }

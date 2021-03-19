@@ -26,7 +26,7 @@ export interface IMapper<DtoT, EntityT> {
     unmapKey<KeyT extends keyof EntityT>(key: KeyT, scope?: IScope): keyof DtoT | undefined;
 }
 
-export type ITransformFunction<InT, OutT> = (input: InT) => OutT;
+export type ITransformFunction<InT, OutT> = (input: InT, scope?: IScope) => OutT;
 
 export interface ITransformer<DtoFieldT, EntityFieldT> {
 
