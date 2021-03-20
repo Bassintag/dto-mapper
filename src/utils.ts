@@ -38,8 +38,8 @@ export function buildMapper<EntityT, DtoT>(dtoClass: Class<DtoT>, ignoreNested: 
             const builtNested = buildMapper<any, any>(clazz, true);
             if (nested.many) {
                 transformer = {
-                    toDto: (input, s) => input.map((i) => builtNested.serialize(i, s)),
-                    fromDto: (input, s) => input.map((i) => builtNested.deserialize(i, s)),
+                    toDto: (input, s) => input == null ? input : input.map((i) => builtNested.serialize(i, s)),
+                    fromDto: (input, s) => input == null ? input : input.map((i) => builtNested.deserialize(i, s)),
                 };
             } else {
                 transformer = {
