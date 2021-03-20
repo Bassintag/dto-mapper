@@ -38,13 +38,13 @@ export function buildMapper<EntityT, DtoT>(dtoClass: Class<DtoT>, ignoreNested: 
             const builtNested = buildMapper<any, any>(clazz, true);
             if (nested.many) {
                 transformer = {
-                    toDto: (input, s) => input === undefined ? undefined : input.map((i) => builtNested.serialize(i, s)),
-                    fromDto: (input, s) => input === undefined ? undefined : input.map((i) => builtNested.deserialize(i, s)),
+                    toDto: (input, s) => input.map((i) => builtNested.serialize(i, s)),
+                    fromDto: (input, s) => input.map((i) => builtNested.deserialize(i, s)),
                 };
             } else {
                 transformer = {
-                    toDto: (input, s) => input === undefined ? undefined : builtNested.serialize(input, s),
-                    fromDto: (input, s) => input === undefined ? undefined : builtNested.deserialize(input, s),
+                    toDto: (input, s) => builtNested.serialize(input, s),
+                    fromDto: (input, s) => builtNested.deserialize(input, s),
                 };
             }
         } else {

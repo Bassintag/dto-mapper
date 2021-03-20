@@ -154,4 +154,18 @@ describe('Mapper class', () => {
         expect(entity.b).to.be.equal(1);
         expect(entity.d).to.be.undefined;
     });
+
+    it('should handle null', function() {
+        const dto = mapper1.serialize(null);
+        expect(dto).to.be.null;
+        const entity = mapper1.deserialize(null);
+        expect(entity).to.be.null;
+    });
+
+    it('should handle undefined', function() {
+        const dto = mapper1.serialize(undefined);
+        expect(dto).to.be.undefined;
+        const entity = mapper1.deserialize(undefined);
+        expect(entity).to.be.undefined;
+    });
 });

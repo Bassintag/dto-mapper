@@ -13,6 +13,10 @@ export interface IMapper<DtoT, EntityT> {
 
     serialize(input: EntityT, scope?: IScope): DtoT;
 
+    deserialize<T = null | undefined>(input: T, scope?: IScope): T;
+
+    serialize<T = null | undefined>(input: T, scope?: IScope): T;
+
     deserializeAndMapField<KeyT extends keyof DtoT>(key: KeyT, input: DtoT[KeyT], scope?: IScope): IResolvedFieldValue<EntityT> | undefined;
 
     serializeAndUnmapField<KeyT extends keyof EntityT>(key: KeyT, input: EntityT[KeyT], scope?: IScope): IResolvedFieldValue<DtoT> | undefined;
@@ -110,7 +114,10 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
         }
     }
 
-    deserialize(input: DtoT, scope?: IScope): EntityT {
+    deserialize(input: DtoT, scope?: IScope): EntityT | null | undefined {
+        if (input == null) {
+            return input as (null | undefined);
+        }
         let inflating: Partial<EntityT>;
         if (this.config.entityConstructor) {
             inflating = new this.config.entityConstructor();
@@ -126,7 +133,10 @@ export class Mapper<DtoT, EntityT> implements IMapper<DtoT, EntityT> {
         return inflating as EntityT;
     }
 
-    serialize(input: EntityT, scope?: IScope): DtoT {
+    serialize(input: EntityT, scope?: IScope): DtoT | null | undefined {
+        if (input == null) {
+            return input as (null | undefined);
+        }
         let inflating: Partial<DtoT>;
         if (this.config.dtoConstructor) {
             inflating = new this.config.dtoConstructor();
