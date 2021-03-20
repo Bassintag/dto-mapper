@@ -1,5 +1,6 @@
 import {IMapper, IMapperField, ITransformer, ITransformFunction, Mapper} from './mapper';
 import {
+    ACCESS_MODE_METADATA,
     DTO_METADATA,
     MAP_TO_METADATA,
     NESTED_METADATA,
@@ -8,7 +9,7 @@ import {
     TRANSFORM_METADATA
 } from './const';
 import {IScope} from './scope';
-import {INestedMetadata} from './annotation';
+import {AccessMode, INestedMetadata} from './annotation';
 
 export interface Class<T> extends Function {
     new(): T;
@@ -25,6 +26,7 @@ export function buildMapper<EntityT, DtoT>(dtoClass: Class<DtoT>, ignoreNested: 
         let to: keyof EntityT = Reflect.getMetadata(MAP_TO_METADATA, dtoClass, k) || k;
         const transformers = Reflect.getMetadata(TRANSFORM_METADATA, dtoClass, k);
         const nested: INestedMetadata = Reflect.getMetadata(NESTED_METADATA, dtoClass, k);
+        const mode: AccessMode = Reflect.getMetadata(ACCESS_MODE_METADATA, dtoClass, k) ?? AccessMode.ALL;
         let transformer: ITransformer<any, any> | undefined;
         if (transformers != null && nested != null) {
             throw new Error('A property cannot have @nested and @transform');
@@ -36,13 +38,13 @@ export function buildMapper<EntityT, DtoT>(dtoClass: Class<DtoT>, ignoreNested: 
             const builtNested = buildMapper<any, any>(clazz, true);
             if (nested.many) {
                 transformer = {
-                    toDto: (input, s) => input == null ? null : input.map((i) => builtNested.serialize(i, s)),
-                    fromDto: (input, s) => input == null ? null : input.map((i) => builtNested.deserialize(i, s)),
+                    toDto: (input, s) => input === undefined ? undefined : input.map((i) => builtNested.serialize(i, s)),
+                    fromDto: (input, s) => input === undefined ? undefined : input.map((i) => builtNested.deserialize(i, s)),
                 };
             } else {
                 transformer = {
-                    toDto: (input, s) => input == null ? null : builtNested.serialize(input, s),
-                    fromDto: (input, s) => input == null ? null : builtNested.deserialize(input, s),
+                    toDto: (input, s) => input === undefined ? undefined : builtNested.serialize(input, s),
+                    fromDto: (input, s) => input === undefined ? undefined : builtNested.deserialize(input, s),
                 };
             }
         } else {
@@ -53,6 +55,8 @@ export function buildMapper<EntityT, DtoT>(dtoClass: Class<DtoT>, ignoreNested: 
             to,
             scopes,
             transformer,
+            disableDeserialize: (mode & AccessMode.WRITE) === 0,
+            disableSerialize: (mode & AccessMode.READ) === 0,
         };
     });
     return new Mapper<DtoT, EntityT>({

@@ -1,8 +1,9 @@
 import 'reflect-metadata';
 
 import {expect} from 'chai';
-import {dto, include, mapTo, nested, scope, transform} from '../src';
+import {AccessMode, accessMode, dto, include, mapTo, nested, readOnly, scope, transform, writeOnly} from '../src';
 import {
+    ACCESS_MODE_METADATA,
     DTO_METADATA,
     MAP_TO_METADATA,
     NESTED_METADATA,
@@ -147,5 +148,44 @@ describe('@nested annotation', () => {
         expect(metadata).to.be.an('object');
         expect(metadata.accessor).to.be.a('function');
         expect(metadata.many).to.be.false;
+    });
+});
+
+describe('@accessMode annotation', () => {
+
+    it('should define the access mode metadata', () => {
+        class SampleDtoClass {
+            @accessMode(AccessMode.WRITE)
+            a: any;
+        }
+
+        const metadata = Reflect.getMetadata(ACCESS_MODE_METADATA, SampleDtoClass, 'a');
+        expect(metadata).to.be.equal(AccessMode.WRITE);
+    });
+});
+
+describe('@readOnly annotation', () => {
+
+    it('should define the access mode metadata', () => {
+        class SampleDtoClass {
+            @readOnly()
+            a: any;
+        }
+
+        const metadata = Reflect.getMetadata(ACCESS_MODE_METADATA, SampleDtoClass, 'a');
+        expect(metadata).to.be.equal(AccessMode.READ);
+    });
+});
+
+describe('@writeOnly annotation', () => {
+
+    it('should define the access mode metadata', () => {
+        class SampleDtoClass {
+            @writeOnly()
+            a: any;
+        }
+
+        const metadata = Reflect.getMetadata(ACCESS_MODE_METADATA, SampleDtoClass, 'a');
+        expect(metadata).to.be.equal(AccessMode.WRITE);
     });
 });

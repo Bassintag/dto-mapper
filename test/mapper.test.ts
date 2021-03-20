@@ -39,6 +39,18 @@ describe('Mapper class', () => {
         }],
     });
 
+    const mapper5 = new Mapper({
+        fields: [{
+            from: 'a',
+            to: 'b',
+            disableSerialize: true,
+        }, {
+            from: 'c',
+            to: 'd',
+            disableDeserialize: true,
+        }]
+    });
+
     it('should allow basic serialization', function() {
         const aVal = 10;
         const dto = mapper1.serialize({a: aVal});
@@ -123,5 +135,23 @@ describe('Mapper class', () => {
 
     it('should allow resolving one reverse key mapping', function() {
         expect(mapper2.mapKey('a')).to.equal('b');
+    });
+
+    it('should allow disabling serialization', function() {
+        const dto = mapper5.serialize({
+            b: 1,
+            d: 2,
+        });
+        expect(dto.a).to.be.undefined;
+        expect(dto.c).to.be.equal(2);
+    });
+
+    it('should allow disabling deserialization', function() {
+        const entity = mapper5.deserialize({
+            a: 1,
+            c: 2,
+        });
+        expect(entity.b).to.be.equal(1);
+        expect(entity.d).to.be.undefined;
     });
 });
