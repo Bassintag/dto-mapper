@@ -1,6 +1,6 @@
 {
   "name": "dto-mapper",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Simple to use library to map DTO using typescript decorators",
   "main": "dist/index.js",
   "scripts": {
