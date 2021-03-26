@@ -6,8 +6,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "test": "mocha -r ts-node/register 'test/**/*.ts'",
-    "prepublish": "npm test && npm run build"
+    "test": "mocha -r ts-node/register 'test/**/*.ts'"
   },
   "files": [
     "dist",
