@@ -10,11 +10,20 @@
   },
   "files": [
     "dist",
-    "./readme.md"
+    "README.md"
   ],
-  "keywords": [],
+  "keywords": [
+    "typescript",
+    "decorator",
+    "dto",
+    "mapping",
+    "rest",
+    "api",
+    "data-binding"
+  ],
   "author": "bassintag",
   "license": "MIT",
+  "repository": "https://github.com/Bassintag/dto-mapper",
   "dependencies": {},
   "peerDependencies": {
     "reflect-metadata": "^0.1.13"
