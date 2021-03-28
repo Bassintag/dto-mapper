@@ -84,6 +84,6 @@ export function combineTransformFunction<T = any, U = any>(functions: ITransform
 export function combineTransformers<T = any, U = any>(transformers: ITransformer<any, any>[]): ITransformer<T, U> {
     return {
         toDto: combineTransformFunction<U, T>(transformers.map((t) => t.toDto)),
-        fromDto: combineTransformFunction<T, U>(transformers.map((t) => t.fromDto)),
+        fromDto: combineTransformFunction<T, U>(transformers.reverse().map((t) => t.fromDto)),
     };
 }

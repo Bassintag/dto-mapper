@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "test": "mocha -r ts-node/register 'test/**/*.ts'"
+    "test": "mocha -r ts-node/register 'test/**/*.ts'",
+    "coverage": "nyc npm run test"
   },
   "files": [
     "dist",
@@ -36,5 +37,14 @@
     "chai": "^4.3.4",
     "mocha": "^8.3.2",
     "ts-node": "^9.1.1"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.test.ts"
+    ],
+    "all": true
   }
 }

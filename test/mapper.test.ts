@@ -51,13 +51,44 @@ describe('Mapper class', () => {
         }]
     });
 
-    it('should allow basic serialization', function() {
+    class DtoA {
+
+        a: string;
+
+        flag?: boolean;
+
+        constructor() {
+            this.flag = true;
+        }
+    }
+
+    class EntityA {
+
+        b: string;
+
+        flag?: boolean;
+
+        constructor() {
+            this.flag = true;
+        }
+    }
+
+    const mapper6 = new Mapper({
+        fields: [{
+            from: 'a',
+            to: 'b',
+        }],
+        dtoConstructor: DtoA,
+        entityConstructor: EntityA,
+    });
+
+    it('should allow basic serialization', function () {
         const aVal = 10;
         const dto = mapper1.serialize({a: aVal});
         expect(dto).property('a').to.equal(aVal);
     });
 
-    it('should allow basic single property serialization', function() {
+    it('should allow basic single property serialization', function () {
         const aVal = 10;
         const serialized = mapper1.serializeField('a', aVal);
         expect(serialized).equal(10);
@@ -66,22 +97,38 @@ describe('Mapper class', () => {
         expect(serializedAndUnmapped).property('value').to.equal(10);
     });
 
-    it('should allow basic deserialization', function() {
+    it('should respect scope when doing single property serialization', function () {
+        const aVal = 10;
+        const deserialized = mapper3.serializeField('d', aVal);
+        expect(deserialized).to.equal(undefined);
+        const deserializedAndMapped = mapper3.serializeAndUnmapField('d', aVal);
+        expect(deserializedAndMapped).to.equal(undefined);
+    });
+
+    it('should allow basic deserialization', function () {
         const aVal = 10;
         const entity = mapper1.deserialize({a: aVal});
         expect(entity).property('a').to.equal(aVal);
     });
 
-    it('should allow basic single property deserialization', function() {
+    it('should allow basic single property deserialization', function () {
         const aVal = 10;
         const deserialized = mapper1.deserializeField('a', aVal);
-        expect(deserialized).equal(10);
+        expect(deserialized).to.equal(10);
         const deserializedAndMapped = mapper1.deserializeAndMapField('a', aVal);
         expect(deserializedAndMapped).property('key').to.equal('a');
         expect(deserializedAndMapped).property('value').to.equal(10);
     });
 
-    it('should allow renaming properties', function() {
+    it('should respect scope when doing single property deserialization', function () {
+        const aVal = 10;
+        const deserialized = mapper3.deserializeField('c', aVal);
+        expect(deserialized).to.equal(undefined);
+        const deserializedAndMapped = mapper3.deserializeAndMapField('c', aVal);
+        expect(deserializedAndMapped).to.equal(undefined);
+    });
+
+    it('should allow renaming properties', function () {
         const val = 10;
         const dto = mapper2.serialize({b: val});
         expect(dto).property('a').to.equal(val);
@@ -89,7 +136,7 @@ describe('Mapper class', () => {
         expect(entity).property('b').to.equal(val);
     });
 
-    it('should allow renaming in single property (de)serialization', function() {
+    it('should allow renaming in single property (de)serialization', function () {
         const val = 10;
         const serialized = mapper2.serializeField('b', val);
         expect(serialized).equal(10);
@@ -103,7 +150,7 @@ describe('Mapper class', () => {
         expect(deserializedAndMapped).property('value').to.equal(10);
     });
 
-    it('should respect scopes', function() {
+    it('should respect scopes', function () {
         const val1 = 10;
         const val2 = 'secret';
         const dto = mapper3.serialize({b: val1, d: val2});
@@ -121,7 +168,7 @@ describe('Mapper class', () => {
     });
 
 
-    it('should allow transforming the data', function() {
+    it('should allow transforming the data', function () {
         const val = 10;
         const dto = mapper4.serialize({b: val});
         expect(dto.a).to.equal(5);
@@ -129,15 +176,25 @@ describe('Mapper class', () => {
         expect(entity.b).to.equal(20);
     });
 
-    it('should allow resolving one key mapping', function() {
+    it('should allow resolving one key mapping', function () {
         expect(mapper2.unmapKey('b')).to.equal('a');
     });
 
-    it('should allow resolving one reverse key mapping', function() {
+    it('should respect scopes when mapping keys', function () {
+        expect(mapper3.unmapKey('d')).to.equal(undefined);
+        expect(mapper3.unmapKey('d', 'admin')).to.equal('c');
+    });
+
+    it('should allow resolving one reverse key mapping', function () {
         expect(mapper2.mapKey('a')).to.equal('b');
     });
 
-    it('should allow disabling serialization', function() {
+    it('should respect scopes when reverse mapping keys', function () {
+        expect(mapper3.mapKey('c')).to.equal(undefined);
+        expect(mapper3.mapKey('c', 'admin')).to.equal('d');
+    });
+
+    it('should allow disabling serialization', function () {
         const dto = mapper5.serialize({
             b: 1,
             d: 2,
@@ -146,7 +203,7 @@ describe('Mapper class', () => {
         expect(dto.c).to.be.equal(2);
     });
 
-    it('should allow disabling deserialization', function() {
+    it('should allow disabling deserialization', function () {
         const entity = mapper5.deserialize({
             a: 1,
             c: 2,
@@ -155,17 +212,33 @@ describe('Mapper class', () => {
         expect(entity.d).to.be.undefined;
     });
 
-    it('should handle null', function() {
+    it('should handle null', function () {
         const dto = mapper1.serialize(null);
         expect(dto).to.be.null;
         const entity = mapper1.deserialize(null);
         expect(entity).to.be.null;
     });
 
-    it('should handle undefined', function() {
+    it('should handle undefined', function () {
         const dto = mapper1.serialize(undefined);
         expect(dto).to.be.undefined;
         const entity = mapper1.deserialize(undefined);
         expect(entity).to.be.undefined;
+    });
+
+    it('should call dto constructor if specified', function () {
+        const dto = mapper6.serialize({
+            b: 'test',
+        });
+        expect(dto.a).to.equal('test');
+        expect(dto.flag).to.be.true;
+    });
+
+    it('should call entity constructor if specified', function () {
+        const entity = mapper6.deserialize({
+            a: 'test',
+        });
+        expect(entity.b).to.equal('test');
+        expect(entity.flag).to.be.true;
     });
 });

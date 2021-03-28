@@ -14,7 +14,7 @@ import {ITransformer} from './mapper';
 import {Class} from './utils';
 
 /**
- * Used to mark a class as a decorator, it is required in order to be able to be mapped by the buildMapper function.
+ * Used to mark a class as a dto, it is required in order to be able to be mapped by the buildMapper function.
  * It has to annotate the exact class used by buildMapper and is not inherited.
  *
  * @return ClassDecorator
@@ -87,7 +87,7 @@ export interface INestedMetadata {
 }
 
 /**
- * Used to map this property to another Dto
+ * Used to map this property to another dto
  *
  * @param accessor A function that returns the class to use to map the nested dto, should also be decorated by @dto
  * @param many Whether this field is an array or not

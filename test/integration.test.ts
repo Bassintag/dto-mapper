@@ -74,6 +74,20 @@ describe('basic integration tests', () => {
         expect(serializedAdmin.a).to.be.equal(entity.a);
     });
 
+    it('should handle null in nested when serializing', () => {
+        const entity: IEntityA = {
+            a: 'a',
+            c: 'c',
+            nested: null,
+            nestedMany: null,
+        };
+        const serialized = mapper.serialize(entity);
+        expect(serialized.a).to.be.undefined;
+        expect(serialized.b).to.be.equal(entity.c);
+        expect(serialized.nested).to.equal(null);
+        expect(serialized.nestedMany).to.equal(null);
+    });
+
     it('should deserialize properly', () => {
         const dto: DtoA = {
             a: 'a',
@@ -96,6 +110,20 @@ describe('basic integration tests', () => {
         expect((deserialized.nestedMany[0] as any).secret).to.be.undefined;
         const serializedAdmin = mapper.deserialize(dto, 'admin');
         expect(serializedAdmin.a).to.be.equal(dto.a);
+    });
+
+    it('should handle null in nested when deserializing', () => {
+        const dto: DtoA = {
+            a: 'a',
+            b: 'c',
+            nested: null,
+            nestedMany: null,
+        };
+        const deserialized = mapper.deserialize(dto);
+        expect(deserialized.a).to.be.undefined;
+        expect(deserialized.c).to.be.equal(dto.b);
+        expect(deserialized.nested).to.be.equal(null);
+        expect(deserialized.nestedMany).to.be.equal(null);
     });
 });
 
