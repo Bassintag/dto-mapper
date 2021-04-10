@@ -7,7 +7,8 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "test": "mocha -r ts-node/register 'test/**/*.ts'",
-    "coverage": "nyc npm run test"
+    "coverage": "nyc npm run test",
+    "codecov": "codecov"
   },
   "files": [
     "dist",
@@ -36,7 +37,9 @@
     "@types/mocha": "^8.2.1",
     "chai": "^4.3.4",
     "mocha": "^8.3.2",
-    "ts-node": "^9.1.1"
+    "ts-node": "^9.1.1",
+    "nyc": "^15.1.0",
+    "codecov": "^3.8.1"
   },
   "nyc": {
     "extension": [
@@ -45,6 +48,7 @@
     "exclude": [
       "**/*.test.ts"
     ],
+    "reporter": "lcov",
     "all": true
   }
 }

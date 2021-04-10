@@ -4,6 +4,7 @@
 
 [![NPM Version][npm-image]][npm-url]
 ![Circle CI][circleci-image]
+![Codecov][codecov-image]
 
 ## Install
 
@@ -245,3 +246,5 @@ const deserializedWithScope = mapper.deserialize({ id: 0, email: 'bob@email.org'
 [npm-url]: https://npmjs.org/package/dto-mapper
 
 [circleci-image]: https://img.shields.io/circleci/build/github/Bassintag/dto-mapper/master?token=297ccde7a4878b59607a44917180da16eb1e307a
+
+[codecov-image]: https://img.shields.io/codecov/c/gh/Bassintag/dto-mapper
